@@ -51,6 +51,12 @@ button:hover {
   background: #45a049;
 }
 
+button:focus,
+input:focus,
+select:focus {
+  outline: none;
+}
+
 .button-container {
   display: flex;
   justify-content: center;
