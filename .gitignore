@@ -1,0 +1,13 @@
+# Node modules
+node_modules/
+
+# Capacitor / build folders
+android/app/release/
+ios/App/App.xcarchive/
+
+# Keystore
+*.jks
+
+# OS files
+.DS_Store
+Thumbs.db
