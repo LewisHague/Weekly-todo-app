@@ -5,31 +5,54 @@ const list = document.getElementById('taskList');
 const daySelector = document.getElementById('daySelector');
 
 let currentDay = daySelector.value;
-document.body.setAttribute('data-day', currentDay);
 let tasks = JSON.parse(localStorage.getItem('tasks-' + currentDay)) || [];
-tasks.forEach(task => addTaskToDOM(task.text, task.done));
 
+// 📭 Empty message
+const emptyMessage = document.createElement('p');
+emptyMessage.innerHTML = "📭 No tasks yet for this day";
+emptyMessage.classList.add('empty-message');
+list.after(emptyMessage);
+
+function updateEmptyMessage() {
+  if (tasks.length === 0) {
+    emptyMessage.classList.add('show');
+  } else {
+    emptyMessage.classList.remove('show');
+  }
+}
+
+// Load initial tasks
+tasks.forEach(task => addTaskToDOM(task.text, task.done));
+updateEmptyMessage();
+
+// Change day
 daySelector.addEventListener('change', () => {
   saveTasks();
   currentDay = daySelector.value;
-  document.body.setAttribute('data-day', currentDay);
   loadTasks();
 });
 
+// Add task
 addBtn.addEventListener('click', () => {
   if (!input.value) return;
+
   addTaskToDOM(input.value, false, true);
   tasks.push({ text: input.value, done: false });
   saveTasks();
+
   input.value = '';
+  updateEmptyMessage();
 });
 
+// Clear all
 clearBtn.addEventListener('click', () => {
   list.innerHTML = '';
   tasks = [];
   saveTasks();
+  updateEmptyMessage();
 });
 
+// Create task
 function addTaskToDOM(text, done, animate=false) {
   const li = document.createElement('li');
 
@@ -53,8 +76,11 @@ function addTaskToDOM(text, done, animate=false) {
   li.appendChild(iconContainer);
 
   if (done) spanText.classList.add('done');
-  if (animate) li.classList.add('bounce');
-  setTimeout(() => li.classList.remove('bounce'), 200);
+
+  if (animate) {
+    li.classList.add('bounce');
+    setTimeout(() => li.classList.remove('bounce'), 200);
+  }
 
   doneIcon.addEventListener('click', () => {
     spanText.classList.toggle('done');
@@ -68,11 +94,13 @@ function addTaskToDOM(text, done, animate=false) {
     li.remove();
     updateTasksArray();
     saveTasks();
+    updateEmptyMessage();
   });
 
   list.appendChild(li);
 }
 
+// Update tasks array
 function updateTasksArray() {
   tasks = [];
   list.querySelectorAll('li').forEach(li => {
@@ -80,14 +108,18 @@ function updateTasksArray() {
     const done = li.querySelector('span').classList.contains('done');
     tasks.push({ text, done });
   });
+  updateEmptyMessage();
 }
 
+// Save
 function saveTasks() {
   localStorage.setItem('tasks-' + currentDay, JSON.stringify(tasks));
 }
 
+// Load
 function loadTasks() {
   list.innerHTML = '';
   tasks = JSON.parse(localStorage.getItem('tasks-' + currentDay)) || [];
   tasks.forEach(task => addTaskToDOM(task.text, task.done));
+  updateEmptyMessage();
 }
