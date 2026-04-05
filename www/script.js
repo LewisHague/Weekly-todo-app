@@ -5,9 +5,9 @@ const list = document.getElementById('taskList');
 const daySelector = document.getElementById('daySelector');
 
 let currentDay = daySelector.value;
-let tasks = JSON.parse(localStorage.getItem('tasks-' + currentDay)) || [];
+let tasks = [];
 
-// 📭 Empty message
+// Create Empty Message Element
 const emptyMessage = document.createElement('p');
 emptyMessage.innerHTML = "📭 No tasks yet for this day";
 emptyMessage.classList.add('empty-message');
@@ -21,20 +21,18 @@ function updateEmptyMessage() {
   }
 }
 
-// Load initial tasks
-tasks.forEach(task => addTaskToDOM(task.text, task.done));
-updateEmptyMessage();
+// Initial Load
+loadTasks();
 
-// Change day
+// Change day listener
 daySelector.addEventListener('change', () => {
-  saveTasks();
   currentDay = daySelector.value;
   loadTasks();
 });
 
-// Add task
+// Add task listener
 addBtn.addEventListener('click', () => {
-  if (!input.value) return;
+  if (!input.value.trim()) return;
 
   addTaskToDOM(input.value, false, true);
   tasks.push({ text: input.value, done: false });
@@ -44,7 +42,14 @@ addBtn.addEventListener('click', () => {
   updateEmptyMessage();
 });
 
-// Clear all
+// Allow "Enter" key to add task
+input.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    addBtn.click();
+  }
+});
+
+// Clear all tasks
 clearBtn.addEventListener('click', () => {
   list.innerHTML = '';
   tasks = [];
@@ -52,12 +57,13 @@ clearBtn.addEventListener('click', () => {
   updateEmptyMessage();
 });
 
-// Create task
-function addTaskToDOM(text, done, animate=false) {
+// Build the task in the UI
+function addTaskToDOM(text, done, animate = false) {
   const li = document.createElement('li');
 
   const spanText = document.createElement('span');
   spanText.textContent = text;
+  if (done) spanText.classList.add('done');
   li.appendChild(spanText);
 
   const iconContainer = document.createElement('div');
@@ -75,14 +81,14 @@ function addTaskToDOM(text, done, animate=false) {
   iconContainer.appendChild(deleteIcon);
   li.appendChild(iconContainer);
 
-  if (done) spanText.classList.add('done');
-
   if (animate) {
     li.classList.add('bounce');
     setTimeout(() => li.classList.remove('bounce'), 200);
   }
 
-  doneIcon.addEventListener('click', () => {
+  // Done click
+  doneIcon.addEventListener('click', (e) => {
+    e.stopPropagation();
     spanText.classList.toggle('done');
     li.classList.add('bounce');
     setTimeout(() => li.classList.remove('bounce'), 200);
@@ -90,7 +96,9 @@ function addTaskToDOM(text, done, animate=false) {
     saveTasks();
   });
 
-  deleteIcon.addEventListener('click', () => {
+  // Delete click
+  deleteIcon.addEventListener('click', (e) => {
+    e.stopPropagation();
     li.remove();
     updateTasksArray();
     saveTasks();
@@ -100,7 +108,6 @@ function addTaskToDOM(text, done, animate=false) {
   list.appendChild(li);
 }
 
-// Update tasks array
 function updateTasksArray() {
   tasks = [];
   list.querySelectorAll('li').forEach(li => {
@@ -108,16 +115,16 @@ function updateTasksArray() {
     const done = li.querySelector('span').classList.contains('done');
     tasks.push({ text, done });
   });
-  updateEmptyMessage();
 }
 
-// Save
 function saveTasks() {
   localStorage.setItem('tasks-' + currentDay, JSON.stringify(tasks));
 }
 
-// Load
 function loadTasks() {
+  // This line triggers your CSS background colors!
+  document.body.setAttribute('data-day', currentDay);
+  
   list.innerHTML = '';
   tasks = JSON.parse(localStorage.getItem('tasks-' + currentDay)) || [];
   tasks.forEach(task => addTaskToDOM(task.text, task.done));

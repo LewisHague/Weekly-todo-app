@@ -1,5 +1,6 @@
 * {
   -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
 }
 
 body {
@@ -8,6 +9,8 @@ body {
   text-align: center;
   padding: 40px 20px;
   transition: background 0.5s;
+  /* Prevents the app from "pulling down" to refresh in mobile browsers */
+  overscroll-behavior-y: contain; 
 }
 
 h1 {
@@ -55,18 +58,6 @@ button:hover {
   background: #45a049;
 }
 
-button:focus,
-input:focus,
-select:focus {
-  outline: none;
-}
-
-button:active, input:active, select:active,
-button:focus-visible, input:focus-visible, select:focus-visible {
-  outline: none;
-  box-shadow: none;
-}
-
 .button-container {
   display: flex;
   justify-content: center;
@@ -92,7 +83,6 @@ li {
   justify-content: space-between;
   align-items: center;
   font-size: 16px;
-  cursor: pointer;
   transition: all 0.3s ease, transform 0.2s ease;
 }
 
@@ -119,10 +109,17 @@ li .icon-container {
   transition: transform 0.2s ease;
 }
 
-.icon:hover {
-  transform: scale(1.2);
+.empty-message {
+  display: none;
+  color: #888;
+  margin-top: 10px;
 }
 
+.empty-message.show {
+  display: block;
+}
+
+/* Day-specific backgrounds */
 body[data-day="Monday"] { background: #FFFAE3; }
 body[data-day="Tuesday"] { background: #E3FFFA; }
 body[data-day="Wednesday"] { background: #FAE3FF; }
